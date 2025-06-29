@@ -1,126 +1,98 @@
-# NoLLM Chat
+# Nhanh
 
-The project aims to revolutionize AI interaction by creating a platform that enhances traditional LLM experiences. It strives to simplify the exploration of AI technologies directly within web browsers, providing a versatile and visual interface. The objective is to enable users to interact with language models in a manner that boosts creativity and enriches their experience, going beyond basic chat interactions.
+Nhanh (Vietnamese for "fast") is a platform designed to accelerate the prototyping of web applications using AI. With Nhanh, you can quickly build, test, and iterate on web app ideas directly in your browser, leveraging both cloud-based and local large language models (LLMs) such as WebLLM and Wllama.
 
-## Intro
+## Overview
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/b4cb4550-ecf6-4470-8998-7b0ab2852b44/deploy-status)](https://app.netlify.com/sites/nollm/deploys)
-<p align="center">
-    <a href="https://nollm.netlify.app/NoLLMChat">✨✨✨ DEMO ✨✨✨</a>
-</p>
-<p align="center">
-    [■■■■□□□□□□] 30%
-</p>
+Nhanh empowers developers and creators to:
 
-![Intro Image](./public/intro.jpeg)
+- **Rapidly Prototype**: Instantly generate and modify web app prototypes using AI-driven workflows.
+- **Flexible LLM Integration**: Work with both remote LLMs and local, in-browser models (WebLLM, Wllama) for privacy and speed.
+- **Visual & Interactive**: Edit, guide, and interact with AI in a visual interface that enhances creativity and productivity.
+- **Browser-Based & Free**: Everything runs locally in your browser, with optional cloud integrations for extended capabilities.
 
-![Demo](./public/demo.gif)
+## Features
 
-## Vision
+- **AI-Powered Prototyping**: Use LLMs to generate code, UI components, and workflows.
+- **Custom Workflows**: Create and automate personal workflows tailored to your needs.
+- **Node-Based Tools**: Experiment with prompt engineering, function calls, and vector databases in a visual environment.
+- **Local & Cloud Models**: Choose between local models for privacy or cloud LLMs for more power.
 
-* **Enhanced AI Interaction**: Move beyond traditional LLM chat with a platform offering a more flexible and visual interface. Users can directly edit and guide AI to improve response quality, enabling richer interaction experiences.
+## Tech Stack
 
-* **Automated Personal Workflows**: Empowers users to create custom AI workflows tailored to their needs, enhancing productivity and personalization.
+Nhanh is built with a modern, high-performance stack:
 
-* **Comprehensive AI Learning**: Utilize node-based tools that facilitate interaction with and learning about AI technologies. The platform supports LLMs, prompt engineering, function calls, and vector databases, allowing users to experiment and see the impact of different AI components.
-
-* **Free and Browser-Based**: Operates locally and free of charge, with the option to extend capabilities using services like OpenAI. This ensures accessibility and ease of use directly from the browser.
+- **Vite**: Fast build tool for web projects.
+- **React**: UI library for building interactive interfaces.
+- **ReactFlow**: Node-based visual programming.
+- **PGLite**: Lightweight PostgreSQL client for browser and Node.js.
+- **Voy**: WASM vector similarity search engine.
+- **Memory Vector Database**: In-memory vector store for fast embedding search.
+- **WebLLM**: Run LLMs directly in the browser.
+- **Langchain & Langgraph**: Frameworks for LLM-powered applications and graph-based language models.
+- **shadcn UI**: Modern UI components.
+- **TypeORM**: ORM supporting SQLite WASM in browser.
+- **Tailwind CSS**: Utility-first CSS framework.
+- **i18next**: Internationalization.
+- **React Router**: Declarative routing.
+- **Zustand**: State management.
+- **ESLint & Prettier**: Code quality and formatting.
+- **magicui & kokonut**: Additional UI components.
 
 ## Project Structure
 
 ```
 src/
-│
-├── assets/         # Static assets like images and fonts
+├── assets/         # Images, fonts, static files
 ├── components/     # Reusable React components
-├── constants/      # Constant values and configuration settings
-├── contexts/       # React context providers for global state management
-├── css/            # Styling files (CSS or preprocessor files)
+├── constants/      # App constants and configs
+├── css/            # Styling
 ├── hooks/          # Custom React hooks
-├── i18n/           # Internationalization setup and resources
-├── lib/            # Utility libraries and third-party integrations
-├── pages/          # Page components for different routes
-├── services/       # API calls and service functions
-├── states/         # State management files (e.g., Zustand)
-├── utils/          # Utility functions and helpers
-│
-├── App.tsx         # Main application component
-├── main.tsx        # Entry point of the application
-└── routes.tsx      # Route configurations
+├── i18n/           # Internationalization
+├── lib/            # Utilities and integrations
+├── pages/          # Route components
+├── services/       # API and service logic
+├── states/         # State management
+├── utils/          # Helper functions
+├── App.tsx         # Main app component
+├── main.tsx        # App entry point
+└── routes.tsx      # Route definitions
 ```
 
-## Project Architecture
+## Architecture
 
-The architecture of the application is designed to efficiently handle different tasks by dividing them into separate threads. This ensures smooth operation and responsiveness of the UI while managing complex processes in the background.
+Nhanh uses a multi-threaded architecture for performance and responsiveness:
 
-* Main Thread: Handles the UI application logic, ensuring a responsive user interface.
-* Database Worker Thread: Manages database operations using TypeORM and PgLite. This thread is responsible for data storage and retrieval without blocking the main UI thread.
-* LLM Thread: Dedicated to handling large language model processes using WebLLM and Langchain. This thread manages AI computations and interactions.
-* Embedding Thread: Focuses on handling the vector database and embedding models. It processes and manages embeddings for efficient data retrieval and manipulation.
-
-```mermaid
-graph LR
-    A[Main Thread] <--> C[Database Worker Thread]
-    C -->|uses| I((TypeORM))
-    I -->|Wraps| D((PGLite))
-    A <--> E[LLM Thread]
-    E -->|Uses| J((Langchain))
-    J -->|Wraps| F((WebLLM))
-    A <--> G[(Memory Vector database)]
-    G --> K[Embedding thread]
-    K -->|Use| L((Embedding Model))
-    
-    A -->|Handle| B((UI Application Logic))
-```
-
-## Libraries and Tools
-
-- **[Vite](https://vite.dev/)**: Fast and modern build tool for web projects.
-- **[React](https://react.dev/)**: A popular JavaScript library for building user interfaces.
-- **[ReactFlow](https://reactflow.dev/)**: A library for building node-based applications.
-- **[PGLite](https://pglite.dev/)**: A lightweight PostgreSQL client for Node.js and browsers.
-- **[Voy](https://github.com/tantaraio/voy)**: A WASM vector similarity search engine written in Rust
-- **[Memory Vector Database](https://js.langchain.com/docs/integrations/vectorstores/memory/)**: ephemeral vectorstore that stores embeddings in-memory and does an exact, linear search for the most similar embeddings.
-- **[WebLLM](https://webllm.mlc.ai/)**: Run large language models in the browser without server dependencies.
-- **[Langchain](https://js.langchain.com/docs/introduction/)**: LangChain is a framework for developing applications powered by large language models (LLMs)
-- **[Langgraph](https://langchain-ai.github.io/langgraph/)**: A graph-based language model.
-- **[shadcn UI](https://ui.shadcn.com/)**: A lightweight and fast state management library for React.
-- **[TypeORM](https://typeorm.io/)**: An ORM that can run in NodeJS and the browser which supports SQLite WASM.
-- **[Tailwind CSS](https://tailwindcss.com/)**: A utility-first CSS framework for quickly building custom designs.
-- **[i18next](https://www.i18next.com/)**: Internationalization framework for browser or any other JavaScript environment.
-- **[React Router](https://reactrouter.com/)**: Declarative routing for React applications.
-- **[Zustand](https://github.com/pmndrs/zustand)**: A small, fast, and scaleable state management library for React.
-- **[ESLint](https://eslint.org/)**: A pluggable and configurable linter tool for identifying and reporting on patterns in JavaScript.
-- **[Prettier](https://prettier.io/)**: An opinionated code formatter that ensures consistent code style.
-- **Components**: [magicui](https://magicui.design) and [kokonut](https://kokonut.dev)
+- **Main Thread**: UI and application logic.
+- **Database Worker**: Handles data storage/retrieval (TypeORM + PGLite).
+- **LLM Thread**: Manages LLM computations (WebLLM, Langchain).
+- **Embedding Thread**: Handles vector database and embeddings.
 
 ## Getting Started
 
-To get started with the Project, follow these steps:
-
-1. **Clone the Repository**: 
+1. **Clone the repository**:
    ```bash
-   git clone git@github.com:zrg-team/NoLLMChat.git
+   git clone git@github.com:zrg-team/nhanh.git
    ```
-2. **Install Dependencies**:
+2. **Install dependencies**:
    ```bash
-   cd NoLLMChat
+   cd nhanh
    yarn install
    ```
-3. **Run the Development Server**:
+3. **Run the development server**:
    ```bash
    yarn dev
    ```
-4. **Open in Browser**: Visit `http://localhost:PORT` to start interacting with the AI assistant.
+4. **Open in browser**: Visit `http://localhost:PORT` to start using Nhanh.
 
 ## Contributing
 
-We welcome contributions from the community! Whether it's bug fixes, new features, or documentation improvements, your help is appreciated. Please check our [contribution guidelines](https://github.com/zrg-team/NoLLMChat/blob/main/CONTRIBUTING.md) for more information.
+Contributions are welcome! Please see our [contribution guidelines](https://github.com/zrg-team/nhanh/blob/main/CONTRIBUTING.md) for details.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/yourusername/ai-web-assistant/blob/main/LICENSE) file for more details.
+MIT License. See [LICENSE](./LICENSE) for more information.
 
 ## Contact
 
-For questions, feedback, or suggestions, feel free to open an issue on GitHub or contact us at [zerglingno2@outlook.com](mailto:zerglingno2@outlook.com).
+Questions or feedback? Open an issue or email [zerglingno2@outlook.com](mailto:zerglingno2@outlook.com).
