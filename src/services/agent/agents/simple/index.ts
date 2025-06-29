@@ -19,6 +19,7 @@ export const createSimpleAgent = async (contextInfo: ContextInfoTypes) => {
     chatLLM: contextInfo.chatLLM,
     tools,
   })
+
   const toolExecutor = new ToolNode(tools)
 
   const graph = new SimpleGraph({

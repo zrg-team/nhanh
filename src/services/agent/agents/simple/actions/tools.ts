@@ -1,4 +1,4 @@
-import { DynamicStructuredTool } from '@langchain/core/tools'
+import { DynamicStructuredTool, DynamicTool } from '@langchain/core/tools'
 import { getMCPClientTools } from 'src/services/agent/mcp'
 import { getCodeSearchTool } from 'src/services/agent/tools/code-search-tool'
 import { getKnowledgeRetrievalTool } from 'src/services/agent/tools/knowledge-retrieval-tool'
@@ -18,8 +18,8 @@ export const getTools = async ({
   codeVectorStore,
   contextVectorStore,
   terminalProcessWriter,
-}: ContextInfoTypes): Promise<DynamicStructuredTool[]> => {
-  const tools: DynamicStructuredTool[] = []
+}: ContextInfoTypes): Promise<(DynamicStructuredTool | DynamicTool)[]> => {
+  const tools: (DynamicStructuredTool | DynamicTool)[] = []
   if (codeVectorStore) {
     const codeSearchTool = getCodeSearchTool({
       codeVectorStore,
