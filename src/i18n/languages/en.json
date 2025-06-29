@@ -346,7 +346,7 @@
         },
         "agents": {
           "simple": "Simple",
-          "mcp": "MPC"
+          "mcp": "MCP"
         },
         "simple": {
 

@@ -1,3 +1,5 @@
+import forge from 'node-forge'
+
 function _base64StringToArrayBuffer(b64str: string) {
   const byteStr = atob(b64str)
   const bytes = new Uint8Array(byteStr.length)
@@ -18,7 +20,7 @@ function _arrayBufferToBase64(arrayBuffer: ArrayBuffer) {
   return b64
 }
 
-function convertPemToBinary(pem: string) {
+export function convertPemToBinary(pem: string) {
   const lines = pem.split('\n')
   let encoded = ''
   for (let i = 0; i < lines.length; i++) {
@@ -45,96 +47,66 @@ function addNewLines(str: string) {
   return finalString
 }
 
-function toPrivatePem(privateKey: ArrayBuffer) {
+export function toPrivatePem(privateKey: ArrayBuffer) {
   const b64 = addNewLines(_arrayBufferToBase64(privateKey))
   const pem = '-----BEGIN RSA PRIVATE KEY-----\n' + b64 + '-----END RSA PRIVATE KEY-----'
 
   return pem
 }
 
-function toPublicPem(privateKey: ArrayBuffer) {
+export function toPublicPem(privateKey: ArrayBuffer) {
   const b64 = addNewLines(_arrayBufferToBase64(privateKey))
   const pem = '-----BEGIN PUBLIC KEY-----\n' + b64 + '-----END PUBLIC KEY-----'
 
   return pem
 }
 
-const encryptAlgorithm = {
-  name: 'RSA-OAEP',
-  modulusLength: 2048,
-  publicExponent: new Uint8Array([1, 0, 1]),
-  extractable: true,
-  hash: {
-    name: 'SHA-256',
-  },
-}
-
 export const generateRSAKeyPair = async () => {
-  const keyPair = await window.crypto.subtle.generateKey(encryptAlgorithm, true, [
-    'encrypt',
-    'decrypt',
-  ])
-
-  const keyPairPem = {
-    publicKey: '',
-    privateKey: '',
-  }
-  const exportedPrivateKey = await window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
-  keyPairPem.privateKey = toPrivatePem(exportedPrivateKey)
-
-  const exportedPublicKey = await window.crypto.subtle.exportKey('spki', keyPair.publicKey)
-  keyPairPem.publicKey = toPublicPem(exportedPublicKey)
-
-  return keyPairPem
+  return new Promise<{ publicKey: string; privateKey: string }>((resolve) => {
+    forge.pki.rsa.generateKeyPair({ bits: 2048, workers: -1 }, (err, keypair) => {
+      if (err) throw err
+      const privateKeyPem = forge.pki.privateKeyToPem(keypair.privateKey)
+      const publicKeyPem = forge.pki.publicKeyToPem(keypair.publicKey)
+      resolve({ publicKey: publicKeyPem, privateKey: privateKeyPem })
+    })
+  })
 }
 
 export const encryptRsa = async (fileArrayBuffer: ArrayBuffer, pemString: string) => {
-  const keyArrayBuffer = convertPemToBinary(pemString)
-  // import public key
-  const secretKey = await crypto.subtle.importKey('spki', keyArrayBuffer, encryptAlgorithm, true, [
-    'encrypt',
-  ])
-  // encrypt the text with the secret key
-  const ciphertextArrayBuffer = await crypto.subtle.encrypt(
-    {
-      name: 'RSA-OAEP',
-    },
-    secretKey,
-    fileArrayBuffer,
-  )
-
-  return ciphertextArrayBuffer
+  const publicKey = forge.pki.publicKeyFromPem(pemString)
+  const buffer = new Uint8Array(fileArrayBuffer)
+  const bufferString = String.fromCharCode(...buffer)
+  const encrypted = publicKey.encrypt(bufferString, 'RSA-OAEP', {
+    md: forge.md.sha256.create(),
+  })
+  // Return as ArrayBuffer
+  return Uint8Array.from(encrypted, (c) => c.charCodeAt(0)).buffer
 }
 
 export const decryptRsa = async (fileArrayBuffer: ArrayBuffer, pemString: string) => {
-  const keyArrayBuffer = convertPemToBinary(pemString)
-
-  const secretKey = await crypto.subtle.importKey('pkcs8', keyArrayBuffer, encryptAlgorithm, true, [
-    'decrypt',
-  ])
-
-  const decryptedBuffer = await crypto.subtle.decrypt(
-    {
-      name: 'RSA-OAEP',
-    },
-    secretKey,
-    fileArrayBuffer,
-  )
-
-  return decryptedBuffer
+  const privateKey = forge.pki.privateKeyFromPem(pemString)
+  const buffer = new Uint8Array(fileArrayBuffer)
+  const decrypted = privateKey.decrypt(String.fromCharCode(...buffer), 'RSA-OAEP', {
+    md: forge.md.sha256.create(),
+  })
+  // Return as ArrayBuffer
+  const decryptedBuffer = new Uint8Array(decrypted.length)
+  for (let i = 0; i < decrypted.length; i++) {
+    decryptedBuffer[i] = decrypted.charCodeAt(i)
+  }
+  return decryptedBuffer.buffer
 }
 
 export const encryptStringRsa = async (str: string, pemString: string) => {
-  const encodedPlaintext = new TextEncoder().encode(str).buffer
-  const encrypted = await encryptRsa(encodedPlaintext, pemString)
+  const buffer = new TextEncoder().encode(str).buffer
+  const encrypted = await encryptRsa(buffer, pemString)
   return _arrayBufferToBase64(encrypted)
 }
 
 export const decryptStringRsa = async (str: string, pemString: string) => {
-  const encodedPlaintext = _base64StringToArrayBuffer(str)
-  const decrypted = await decryptRsa(encodedPlaintext, pemString)
+  const buffer = _base64StringToArrayBuffer(str)
+  const decrypted = await decryptRsa(buffer, pemString)
   const uint8Array = new Uint8Array(decrypted)
   const textDecoder = new TextDecoder()
-  const decodedString = textDecoder.decode(uint8Array)
-  return decodedString
+  return textDecoder.decode(uint8Array)
 }

@@ -151,11 +151,11 @@ export const getLocalLLMStateActions = (
     },
     syncCachedLLMURLs: async () => {
       return caches
-        .open('webllm/config')
-        .then(async (cache) => {
+        ?.open('webllm/config')
+        ?.then(async (cache) => {
           return cache.keys()
         })
-        .then((requests) => {
+        ?.then((requests) => {
           const urls = requests.map((request) => request.url)
           set({ cachedLLMURLs: urls })
           return urls

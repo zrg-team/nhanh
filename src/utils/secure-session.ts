@@ -1,8 +1,9 @@
+import CryptoJS from 'crypto-js'
+
 class SecureSessionMemory {
-  private sessionKeyProcess: Promise<CryptoKey> | undefined
-  private sessionKey: CryptoKey
+  private sessionKey: string
   private loadded = false
-  private sessionMemory = new Map<string, ArrayBuffer>()
+  private sessionMemory = new Map<string, string>() // store as hex string
 
   constructor() {
     this.init()
@@ -12,56 +13,48 @@ class SecureSessionMemory {
     if (this.loadded) {
       return
     }
-
-    this.sessionMemory = new Map<string, ArrayBuffer>()
-    const algorithm = { name: 'AES-GCM', length: 256 }
-    const keyUsages = ['encrypt' as const, 'decrypt' as const]
-    this.sessionKeyProcess = window.crypto.subtle
-      .generateKey(algorithm, true, keyUsages)
-      .then((key) => key)
-    this.sessionKey = await this.sessionKeyProcess
+    this.sessionMemory = new Map<string, string>()
+    // Generate a random 256-bit key (32 bytes)
+    this.sessionKey = CryptoJS.lib.WordArray.random(32).toString(CryptoJS.enc.Hex)
     this.loadded = true
-    this.sessionKeyProcess = undefined
   }
 
   async reload() {
     this.loadded = false
-    this.init()
+    await this.init()
   }
 
   async set(key: string, value: string) {
-    if (this.sessionKeyProcess) {
-      await this.sessionKeyProcess
-    }
-    const encrypted = await crypto.subtle.encrypt(
-      {
-        name: 'AES-GCM',
-        iv: new Uint8Array(12),
-      },
-      this.sessionKey,
-      new TextEncoder().encode(value),
-    )
-    this.sessionMemory.set(key, encrypted)
+    // Generate a random 16-byte IV for each value
+    const iv = CryptoJS.lib.WordArray.random(16)
+    const keyWord = CryptoJS.enc.Hex.parse(this.sessionKey)
+    const encrypted = CryptoJS.AES.encrypt(value, keyWord, {
+      iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    })
+    // Store IV + ciphertext as hex (IV is needed for decryption)
+    const stored = iv.toString(CryptoJS.enc.Hex) + encrypted.ciphertext.toString(CryptoJS.enc.Hex)
+    this.sessionMemory.set(key, stored)
   }
 
   async get(key: string) {
-    const encryptData = this.sessionMemory.get(key)
-    if (!encryptData) {
-      return null
-    }
-    if (this.sessionKeyProcess) {
-      await this.sessionKeyProcess
-    }
-    const decrypted = await crypto.subtle.decrypt(
-      {
-        name: 'AES-GCM',
-        iv: new Uint8Array(12),
-      },
-      this.sessionKey,
-      encryptData,
-    )
-
-    return new TextDecoder().decode(decrypted)
+    const stored = this.sessionMemory.get(key)
+    if (!stored) return null
+    // Extract IV and ciphertext
+    const ivHex = stored.slice(0, 32) // 16 bytes IV
+    const ciphertextHex = stored.slice(32)
+    const iv = CryptoJS.enc.Hex.parse(ivHex)
+    const ciphertext = CryptoJS.enc.Hex.parse(ciphertextHex)
+    const keyWord = CryptoJS.enc.Hex.parse(this.sessionKey)
+    // Create CipherParams object for decryption
+    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext })
+    const decrypted = CryptoJS.AES.decrypt(cipherParams, keyWord, {
+      iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    })
+    return decrypted.toString(CryptoJS.enc.Utf8)
   }
 
   async exists(key: string) {

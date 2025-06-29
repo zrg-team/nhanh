@@ -1,3 +1,5 @@
+import CryptoJS from 'crypto-js'
+
 const _arrayBufferFromHexString = (hexString: string) => {
   const matches = hexString.match(/.{1,2}/g)
   if (!matches) {
@@ -7,15 +9,17 @@ const _arrayBufferFromHexString = (hexString: string) => {
   return bytes.buffer
 }
 
-const _stringToArrayBuffer = (str: string) => {
+export const _stringToArrayBuffer = (str: string) => {
   const encoder = new TextEncoder()
   return encoder.encode(str).buffer
 }
 
 const _digestMessage = async (message: string) => {
-  const data = _stringToArrayBuffer(message)
-  const hash = await crypto.subtle.digest('SHA-256', data)
-  return hash
+  // Use CryptoJS for SHA-256
+  const hash = CryptoJS.SHA256(message)
+  // Convert WordArray to ArrayBuffer
+  const hex = hash.toString(CryptoJS.enc.Hex)
+  return _arrayBufferFromHexString(hex)
 }
 
 const _arrayBufferToHexString = (buffer: ArrayBuffer) => {
@@ -25,13 +29,13 @@ const _arrayBufferToHexString = (buffer: ArrayBuffer) => {
     const paddedHexCode = hexCode.padStart(2, '0')
     return paddedHexCode
   })
-
   return hexCodes.join('')
 }
 
 export const generatePassphrase = async () => {
-  const passphrase = crypto.getRandomValues(new Uint8Array(32))
-  const passphraseHex = _arrayBufferToHexString(passphrase)
+  // Use CryptoJS random generator
+  const passphrase = CryptoJS.lib.WordArray.random(32)
+  const passphraseHex = passphrase.toString(CryptoJS.enc.Hex)
   return passphraseHex
 }
 
@@ -50,79 +54,60 @@ export const getIvFromPassphrase = async (passphrase: string) => {
 export const encryptSymmetric = async (message: string, passphrase: string) => {
   const keyHex = await getKeyFromPassphrase(passphrase)
   const ivHex = await getIvFromPassphrase(passphrase)
-  const messageBuffer = _stringToArrayBuffer(message)
-  const encryptedBuffer = await encryptAes(messageBuffer, keyHex, ivHex)
-  const encryptedHex = _arrayBufferToHexString(encryptedBuffer)
-  return encryptedHex
+  const key = CryptoJS.enc.Hex.parse(keyHex)
+  const iv = CryptoJS.enc.Hex.parse(ivHex)
+  const encrypted = CryptoJS.AES.encrypt(message, key, {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  })
+  return encrypted.ciphertext.toString(CryptoJS.enc.Hex)
 }
 
 export const decryptSymmetric = async (encryptedHex: string, passphrase: string) => {
   const keyHex = await getKeyFromPassphrase(passphrase)
   const ivHex = await getIvFromPassphrase(passphrase)
-  const encryptedBuffer = _arrayBufferFromHexString(encryptedHex)
-  const decryptedBuffer = await decryptAes(encryptedBuffer, keyHex, ivHex)
-  const decryptedMessage = new TextDecoder().decode(decryptedBuffer)
-  return decryptedMessage
+  const key = CryptoJS.enc.Hex.parse(keyHex)
+  const iv = CryptoJS.enc.Hex.parse(ivHex)
+  const encrypted = CryptoJS.enc.Hex.parse(encryptedHex)
+  const encryptedBase64 = CryptoJS.enc.Base64.stringify(encrypted)
+  const decrypted = CryptoJS.AES.decrypt(encryptedBase64, key, {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  })
+  return decrypted.toString(CryptoJS.enc.Utf8)
 }
 
 export const encryptAes = async (fileArrayBuffer: ArrayBuffer, keyHex: string, ivHex: string) => {
-  // decode the Hex-encoded key and IV
-  const ivArrayBuffer = _arrayBufferFromHexString(ivHex)
-  const keyArrayBuffer = _arrayBufferFromHexString(keyHex)
-
-  // prepare the secret key for encryption
-  const secretKey = await crypto.subtle.importKey(
-    'raw',
-    keyArrayBuffer,
-    {
-      name: 'AES-CBC',
-      length: 256,
-    },
-    true,
-    ['encrypt', 'decrypt'],
-  )
-
-  // encrypt the text with the secret key
-  const ciphertextArrayBuffer = await crypto.subtle.encrypt(
-    {
-      name: 'AES-CBC',
-      iv: ivArrayBuffer,
-    },
-    secretKey,
-    fileArrayBuffer,
-  )
-
-  return ciphertextArrayBuffer
+  const key = CryptoJS.enc.Hex.parse(keyHex)
+  const iv = CryptoJS.enc.Hex.parse(ivHex)
+  const wordArray = CryptoJS.lib.WordArray.create(new Uint8Array(fileArrayBuffer))
+  const encrypted = CryptoJS.AES.encrypt(wordArray, key, {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  })
+  return _arrayBufferFromHexString(encrypted.ciphertext.toString(CryptoJS.enc.Hex))
 }
 
-// openssl enc -aes-256-cbc -nosalt -d -in test_car_encrypted_web.jpg -out test_car_enc_web_dec_openssl.jpg -K <key in Hex> -iv <iv in Hex>
 export const decryptAes = async (fileArrayBuffer: ArrayBuffer, keyHex: string, ivHex: string) => {
-  // decode the Hex-encoded key and IV
-  const ivArrayBuffer = _arrayBufferFromHexString(ivHex)
-  const keyArrayBuffer = _arrayBufferFromHexString(keyHex)
-
-  // prepare the secret key for encryption
-  const secretKey = await crypto.subtle.importKey(
-    'raw',
-    keyArrayBuffer,
-    {
-      name: 'AES-CBC',
-      length: 256,
-    },
-    true,
-    ['encrypt', 'decrypt'],
-  )
-
-  // decrypt the ciphertext with the secret key
-  const decryptedBuffer = await crypto.subtle.decrypt(
-    {
-      name: 'AES-CBC',
-      iv: ivArrayBuffer,
-    },
-    secretKey,
-    fileArrayBuffer,
-  )
-
-  // return the decrypted data as an ArrayBuffer
-  return decryptedBuffer
+  const key = CryptoJS.enc.Hex.parse(keyHex)
+  const iv = CryptoJS.enc.Hex.parse(ivHex)
+  const encryptedHex = _arrayBufferToHexString(fileArrayBuffer)
+  const encrypted = CryptoJS.enc.Hex.parse(encryptedHex)
+  const encryptedBase64 = CryptoJS.enc.Base64.stringify(encrypted)
+  const decrypted = CryptoJS.AES.decrypt(encryptedBase64, key, {
+    iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  })
+  // Convert WordArray to ArrayBuffer
+  const decryptedBytes = decrypted.words
+  const sigBytes = decrypted.sigBytes
+  const u8 = new Uint8Array(sigBytes)
+  for (let i = 0; i < sigBytes; ++i) {
+    u8[i] = (decryptedBytes[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff
+  }
+  return u8.buffer
 }
