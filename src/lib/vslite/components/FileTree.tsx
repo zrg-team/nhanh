@@ -229,7 +229,7 @@ export function FileTree(props: FileTreeProps) {
             <div
               ref={editorRef}
               className={cn(
-                'flex-1 !overflow-scroll max-h-full nowheel nodrag relative',
+                'flex-1 !overflow-y-scroll max-h-full nowheel nodrag relative',
                 isDarkTheme ? 'rct-dark' : 'rct-default',
               )}
             >

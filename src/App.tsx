@@ -2,6 +2,7 @@ import { FC, PropsWithChildren, Suspense, lazy, memo } from 'react'
 
 import 'src/i18n'
 import 'src/css/global.css'
+import 'src/css/scrollbar.css'
 import 'src/services/filesystem'
 
 import * as dayjs from 'dayjs'
