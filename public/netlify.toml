@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/Nhanh/*"
+  to = "/:splat"
+  status = 200

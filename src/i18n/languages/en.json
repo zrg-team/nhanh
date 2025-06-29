@@ -1,0 +1,368 @@
+{
+  "common": {
+    "app_name": "Znhanh",
+    "almost_there": "Almost there...",
+    "a_bit_more": "Just a little more...",
+    "loading": "Loading...",
+    "something_went_wrong": "Something went wrong",
+    "copied": "Copied",
+    "deleted": "Deleted",
+    "sessions": "Sessions",
+    "new_session": "New Session",
+    "errors": {
+      "delete_failed": "Delete node failed.",
+      "create_standalone_session_failed": "Failed to create standalone session."
+    },
+    "standalone_session_created": "Standalone session created.",
+    "theme": "Theme"
+  },
+  "documents": {
+    "title": "Documents",
+    "playground": {
+      "title": "Playground",
+      "nodes": "Nodes",
+      "connections": "Connections"
+    },
+    "model": {
+      "title": "Models",
+      "llm": "LLM",
+      "embedding": "Embedding"
+    },
+    "tutorial": {
+      "title": "Tutorial",
+      "get_started": "Get Started",
+      "chat_with_llm": "Chat with LLM",
+      "simple_workflow": "Simple Workflow",
+      "ai_structured_output": "AI Structured Output",
+      "standalone_editor_application": "Editor Application",
+      "standalone_chat_application": "Chat Application",
+      "tool_calling": "Tool Calling",
+      "few_shot_example": "Few Shot Example",
+      "vector_database": "Vector Database"
+    },
+    "application": {
+      "title": "Application",
+      "chat": "Chat",
+      "editor": "Editor",
+      "vslite": "VS Lite"
+    }
+  },
+  "applications": {
+    "vslite": {
+      "copilot": "Copilot"
+    }
+  },
+  "dialogs": {
+    "delete_session": {
+      "title": "Are you sure to delete this session?",
+      "description": "Deleting this session will remove all the data in this session.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "errors": {
+        "delete_failed": "Failed to delete session."
+      }
+    },
+    "create_session_passkey": {
+      "title": "Create Session Passkey",
+      "description": "Create a passkey for this session.",
+      "confirm": "Confirm"
+    },
+    "session_passkey": {
+      "title": "Session Passkey",
+      "description": "Input session passkey to unlock this session.",
+      "confirm": "Confirm"
+    },
+    "create_vector_database_retriever": {
+      "title": "Create Vector Database Retriever",
+      "fill_content_note": "Use '{context}' as similarity result placeholder in the prompt.",
+      "errors": {
+        "fill_context": "prompt content is required and must contain '{context}' as placeholder.",
+        "create_failed": "Failed to create vector database retriever."
+      },
+      "retriever_settings": "Retriever Settings",
+      "retriever_k": "K (Expected number of results)",
+      "retriever_k_placeholder": "Input K value...",
+      "retriever_minimum_score": "Minimum Score (0-100)",
+      "retriever_minimum_score_placeholder": "Input minimum score..."
+    }
+  },
+  "atoms": {
+    "llm_info": {
+      "function_calling": "Function Calling",
+      "low_resource_required": "Low resource required",
+      "cached": "Cached",
+      "recommended": "Recommended",
+      "cloud": "Cloud",
+      "model_types": {
+        "llm": "LLM",
+        "embedding": "Embedding",
+        "vlm": "Vision"
+      }
+    },
+    "llm_setting": {
+      "title": "Setting",
+      "hide": "Hide",
+      "temperature": "Temperature",
+      "top_k": "Top K",
+      "top_p": "Top P",
+      "max_tokens": "Max Tokens",
+      "stop_sequences": "Stop Sequences",
+      "stop_sequences_placeholder": "Stop sequences, separated by comma. Example: 'end, stop'",
+      "save": "Save"
+    },
+    "embedding_setting": {
+      "title": "Setting",
+      "hide": "Hide",
+      "save": "Save",
+      "provider": "Provider",
+      "provider_placeholder": "Select a provider",
+      "providers": {
+        "local_transformers": "Local Transformers",
+        "openai": "OpenAI",
+        "googlegenerativeai": "Google Generative AI"
+      },
+      "alerts": {
+        "no_provider": "To select difference embedding model, please add a LLM node which is supported embedding model. Example: 'OpenAI', 'Google Generative AI'",
+        "session_passkey":"Using this provider requires setting up a passkey, which will be used to encrypt your key. Each time you use this session, you need to provide the passkey. The passkey will not be stored on the server and recovery is not possible if you lose it."
+      },
+      "encrypted_fields": {
+        "api_key": "API key"
+      }
+    }
+  },
+  "components": {
+    "mcp": {
+      "title": "MCP",
+      "description": {
+        "intro": "You can add your local MCP to the application. To further details, please refer the below documentation."
+      },
+      "create_or_update_title": "Create or Update",
+      "list_empty": "No MCPs found",
+      "key": "Name",
+      "url": "URL",
+      "create_or_update": "Create or Update",
+      "list": "List",
+      "faq": "FAQ",
+      "note": {
+        "title": "Note",
+        "detail": "\n * 1. Some MCP servers may not support sse protocol, use supergateway to wrap it.\n * 2. Using local-cors-proxy to wrap MCP server for CORS."
+      },
+      "filesystem": {
+        "title": "Filesystem",
+        "detail": "```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-filesystem ./my-folder\"     --port 8881 --baseUrl http://localhost:8881     --ssePath /sse --messagePath /message\nnpx --yes local-cors-proxy --port 8891 --proxyUrl http://localhost:8881 --proxyPartial \"\"\n\n```\nThen add\n* name: filesystem\n* url: http://localhost:8891 to MCPs.\n"
+      },
+      "playwright": {
+        "title": "Playwright",
+        "detail": "```bash\nnpx @playwright/mcp@latest --port 8883\nnpx --yes local-cors-proxy --port 8893 --proxyUrl http://localhost:8883 --proxyPartial \"\"\n```\nThen add\n* name: playwright\n* url: http://localhost:8893 to MCPs.\n"
+      },
+      "figma": {
+        "title": "Figma",
+        "detail": "```bash\nnpx -y figma-developer-mcp --figma-api-key={figma-api-key}\n# Proxy for CORS\nnpx --yes local-cors-proxy --port 8892 --proxyUrl http://localhost:${PORT OF YOUR FIGMA MCP} --proxyPartial \"\"\n\n```\nThen add\n* name: figma\n* url: http://localhost:8892 to MCPs.\n"
+      },
+      "memory": {
+        "title": "Graph Memory",
+        "detail": "```bash\nnpx -y supergateway     --stdio \"npx -y @modelcontextprotocol/server-memory\"     --port 8884 --baseUrl http://localhost:8884     --ssePath /sse --messagePath /message\nnpx --yes local-cors-proxy --port 8894 --proxyUrl http://localhost:8884 --proxyPartial \"\"\n\n```\nThen add\n* name: graph-memory\n* url: http://localhost:8894 to MCPs.\n"
+      }
+    },
+    "add_llm_card": {
+      "title": "LLM",
+      "button_add": "Create",
+      "button_download_and_add": "Create",
+      "model_name": "Model",
+      "select_model_placeholder": "Select a model",
+      "search_placeholder": "Search model...",
+      "hugging_face_repo_placeholder": "{username}/{repo}",
+      "wllama_description": "Max GGUF file size is 2GB. If your model is bigger than 2GB, please follow this guide to split it into smaller shards.",
+      "no_model": "No model found",
+      "hugging_face_repo": "Hugging Face Repo",
+      "providers": {
+        "webllm": "WebLLM",
+        "wllama": "Wllama",
+        "openai": "OpenAI",
+        "groq": "Groq",
+        "googlegenerativeai": "Google Generative AI"
+      },
+      "provider": "Provider",
+      "provider_select_placeholder": "Select a provider",
+      "has_model_cache": "Has Model Cache",
+      "model_lib_url": "Library URL:",
+      "low_resource_required": "Low resource required",
+      "model_url": "URL:",
+      "metadata": "Metadata: ",
+      "errors": {
+        "failed_to_create": "Failed to create LLM."
+      },
+      "alert": {
+        "session_passkey": "Using this provider requires setting up a passkey, which will be used to encrypt your key. Each time you use this session, you need to provide the passkey. The passkey will not be stored on the server and recovery is not possible if you lose it."
+      },
+      "encrypted_fields": {
+        "api_key": "API key",
+        "credentials": "Credentials (JSON)",
+        "enabled_google_search_retreival": "Enabled Google Search"
+      }
+    }
+  },
+  "molecules": {
+    "llm_card": {
+      "load_model_button": "Load Model",
+      "download_model_button": "Download Model"
+    },
+    "chat": {
+      "history": "History",
+      "input_message_placeholder": "Type your message here...",
+      "vector_database": "Vector Database",
+      "search": "Search",
+      "text": "Text",
+      "file": "File",
+      "view": "View",
+      "alerts": {
+        "no_llm_model": "No model found. Please add a LLM node first."
+      }
+    },
+    "vector_database_node": {
+      "k_select_placeholder": "Select a k value",
+      "similarity_search_placeholder": "Search similar ...",
+      "similarity_search_result": "Similarity Search Result",
+      "score": "Score",
+      "content": "Content",
+      "errors": {
+        "similarity_search_failed": "Failed to search similar text.",
+        "vector_database_not_found": "Vector database not found.",
+        "data_node_not_found": "Data node not found.",
+        "content_not_found": "Must provide content or documents."
+      },
+      "storage_type": "Storage Type",
+      "storage_types": {
+        "datanode": "DataNode",
+        "indexeddb": "IndexedDB",
+        "datbase": "Database"
+      },
+      "search": "Search",
+      "text": "Text",
+      "file": "File",
+      "view": "View",
+      "create_prompt": "Create Prompt",
+      "add_text": {
+        "id": "ID",
+        "id_placeholder":"Input ID here...",
+        "content": "Content",
+        "content_placeholder": "Input content here...",
+        "add": "Add"
+      },
+      "add_file": {
+        "index": "Index File",
+        "alert_file_size": "Noted: file size larger than 2MB will take a long time to index by using local embedding model (Setting Embedding Node to use OpenAI or Google Generative AI for large file)."
+      },
+      "to_retriever": "To Retriever"
+    },
+    "add_prompt_card": {
+      "prompt_content": "Content",
+      "prompt_prefix": "Prefix",
+      "prompt_type": "Type",
+      "prompt_role": "Role",
+      "type_select_placeholder":"Select prompt type",
+      "role_select_placeholder":"Select prompt role",
+      "prompt_types": {
+        "chat": "Chat",
+        "few_shot_example": "Few Shot Example"
+      },
+      "prompt_roles": {
+        "system": "System",
+        "human": "Human",
+        "ai": "AI",
+        "few_shot_example": "Few Shot Example"
+      },
+      "title": "Prompt",
+      "placeholder":"Type your prompt here...",
+      "button": "Create",
+      "few_shot_example_note": "Use {input} to represent the input in the prompt. And use {output} to represent the output. For example, Question: {input}\nAnswer: {output}"
+    },
+    "copilot": {
+      "chat": "Chat",
+      "code": "Code",
+      "config": "Config",
+      "mcp": "MCP",
+      "context": "Context"
+    }
+  },
+  "chat": {
+    "messages": {
+      "loading_llm": "Loading LLM...",
+      "llm_loaded": "LLM loaded."
+    },
+    "errors": {
+      "llm_not_found": "LLM not found.",
+      "llm_not_loaded_yet":"LLM not loaded yet.",
+      "stream_message_failed": "Failed to stream message."
+    }
+  },
+  "pages": {
+    "create_session": {
+      "title": "Create a workspace",
+      "description": "A workspace is a isolated environment for you to work on your projects.",
+      "name": "Name",
+      "name_placeholder": "Input name...",
+      "default_source": "Default Source",
+      "create": "Create",
+      "errors": {
+        "create_failed": "Failed to create.",
+        "name_not_found": "Name is required.",
+        "llm_not_found": "LLM info is required.",
+        "passphrase_not_found": "Passphrase is required to secure your information.",
+        "agent_not_found": "Agent is required."
+      },
+      "source_base": {
+        "title": "Source Base",
+        "source_base_select_placeholder": "Select a source base",
+        "sourcebases": {
+          "vite-vue": "Base [Vite + Vue]",
+          "shadcn-react-vite": "Base [React + Vite + Shadcn]",
+          "todo-app-react-vite": "Todo App [Vue + Vite + Shadcn]",
+          "porfolio-nextjs": "Portfolio [Next.js + Shadcn]",
+          "empty-source": "Empty Source",
+          "simple-html": "Simple HTML",
+          "mcp-source": "MCP Source"
+        },
+        "update_source": "Update Source"
+      },
+      "passphrase": {
+        "title": "Passphrase"
+      },
+      "config": {
+        "title": "Config",
+        "llm": {
+          "title": "LLM",
+          "save": "Save"
+        },
+        "embedding": {
+          "title": "Embedding"
+        }
+      },
+      "agent": {
+        "title": "Agent",
+        "agent_select_placeholder": "Select an agent",
+        "prompts": {
+          "agent_system": "Agent System Prompt"
+        },
+        "agents": {
+          "simple": "Simple",
+          "mcp": "MPC"
+        },
+        "simple": {
+
+        },
+        "mcp": {
+
+        }
+      }
+    }
+  },
+  "vslite": {
+    "context_menu": {
+      "new_file": "New File",
+      "new_folder": "New Folder",
+      "rename": "Rename",
+      "delete": "Delete"
+    }
+  }
+}
