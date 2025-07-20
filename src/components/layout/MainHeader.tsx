@@ -8,6 +8,7 @@ import LazyIcon from 'src/components/atoms/LazyIcon'
 import { Button } from 'src/lib/shadcn/ui/button'
 import { useAppState } from 'src/states/app'
 import { Label } from 'src/lib/shadcn/ui/label'
+import { Link } from 'react-router-dom'
 
 export function MainHeader() {
   const { t } = useTranslation('common')
@@ -24,7 +25,9 @@ export function MainHeader() {
         <SidebarTrigger>
           <AppIcon className={'w-7 h-7'} />
         </SidebarTrigger>
-        <Label className="text-lg font-bold">{t('app_name')}</Label>
+        <Link to="/" className="flex items-center gap-2 cursor-pointer">
+          <Label className="text-lg font-bold cursor-pointer">{t('app_name')}</Label>
+        </Link>
       </div>
       <div className="flex items-center pl-4 pr-2">
         <TooltipProvider>
